@@ -67,6 +67,7 @@ public class CurrentTaskFragment extends TaskFragment {
 
     @Override
     public void addTaskFromDb() {
+        adapter.removeAllItems();
         List<ModelTask> tasks = new ArrayList<>();
         tasks.addAll(activity.dbHelper.query().getTask(DbHelper.SELECTION_STATUS + " OR "
                 + DbHelper.SELECTION_STATUS, new String[]{Integer.toString(ModelTask.STATUS_CURRENT),
@@ -78,6 +79,19 @@ public class CurrentTaskFragment extends TaskFragment {
 
     @Override
     public void move(ModelTask modelTask) {
+        alarmHelper.removeAlarm(modelTask.getTimeStamp());
         taskDoneListener.onTaskDone(modelTask);
+    }
+
+    @Override
+    public void findTasks(String title) {
+        adapter.removeAllItems();
+        List<ModelTask> tasks = new ArrayList<>();
+        tasks.addAll(activity.dbHelper.query().getTask(DbHelper.SELECTION_LIKE_TITLE +" AND " + DbHelper.SELECTION_STATUS + " OR "
+                + DbHelper.SELECTION_STATUS, new String[]{"%"+ title + "%", Integer.toString(ModelTask.STATUS_CURRENT),
+                Integer.toString(ModelTask.STATUS_OVERDUE)}, DbHelper.TASK_DATE_COLUMN));
+        for (int i = 0; i < tasks.size(); i++) {
+            addTask(tasks.get(i), false);
+        }
     }
 }

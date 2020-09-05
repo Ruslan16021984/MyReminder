@@ -38,4 +38,22 @@ public class DbQueryManager {
         c.close();
         return tasks;
     }
+    public ModelTask getTask(long timeStamp) {
+        ModelTask modelTask = null;
+        Cursor cursor = database.query(DbHelper.TASKS_TABLE, null, DbHelper.SELECTION_TIME_STAMP,
+                new String[]{Long.toString(timeStamp)}, null, null, null);
+
+        if (cursor.moveToFirst()) {
+            String title = cursor.getString(cursor.getColumnIndex(DbHelper.TASK_TITLE_COLUMN));
+            long date = cursor.getLong(cursor.getColumnIndex(DbHelper.TASK_DATE_COLUMN));
+            int priority = cursor.getInt(cursor.getColumnIndex(DbHelper.TASK_PRIORITY_COLUMN));
+            int status = cursor.getInt(cursor.getColumnIndex(DbHelper.TASK_STATUS_COLUMN));
+
+            modelTask = new ModelTask(title, date, priority, status, timeStamp);
+        }
+        cursor.close();
+
+        return modelTask;
+
+    }
 }

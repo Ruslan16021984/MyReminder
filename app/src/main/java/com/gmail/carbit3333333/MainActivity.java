@@ -4,7 +4,9 @@ package com.gmail.carbit3333333;
 import android.app.DialogFragment;
 import android.app.FragmentManager;
 import android.os.Bundle;
+
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.viewpager.widget.ViewPager;
 
@@ -14,6 +16,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.gmail.carbit3333333.adapters.TabAdapter;
+import com.gmail.carbit3333333.alarm.AlarmHelper;
 import com.gmail.carbit3333333.database.DbHelper;
 import com.gmail.carbit3333333.dialog.AddingTaskDialogFragment;
 import com.gmail.carbit3333333.fragments.CurrentTaskFragment;
@@ -33,6 +36,7 @@ public class MainActivity extends AppCompatActivity implements AddingTaskDialogF
     public DbHelper dbHelper;
     TaskFragment currentTaskFragment;
     TaskFragment doneTaskFragment;
+    SearchView searchView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +45,8 @@ public class MainActivity extends AppCompatActivity implements AddingTaskDialogF
 
         PreferenceHelper.getInstance().init(getApplicationContext());
         preferenceHelper = PreferenceHelper.getInstance();
+        AlarmHelper.getInstance().init(getApplicationContext());
+
         dbHelper = new DbHelper(getApplicationContext());
         fragmentManager = getFragmentManager();
 
@@ -127,7 +133,20 @@ public class MainActivity extends AppCompatActivity implements AddingTaskDialogF
         currentTaskFragment = (CurrentTaskFragment) tabAdapter.getItem(TabAdapter.CURRENT_TASK_FRAGMENT_POSITION);
         doneTaskFragment = (DoneTaskFragment) tabAdapter.getItem(TabAdapter.DONE_TASK_FRAGMENT_POSITION);
 
+        searchView = findViewById(R.id.search_view);
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
 
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                currentTaskFragment.findTasks(newText);
+                doneTaskFragment.findTasks(newText);
+                return false;
+            }
+        });
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -158,5 +177,17 @@ public class MainActivity extends AppCompatActivity implements AddingTaskDialogF
     @Override
     public void onTaskTestore(ModelTask modelTask) {
         currentTaskFragment.addTask(modelTask, false);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        MyApplication.activityResumed();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        MyApplication.activityPaused();
     }
 }

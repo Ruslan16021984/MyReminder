@@ -69,4 +69,10 @@ public abstract class TaskAdapter extends RecyclerView.Adapter<RecyclerView.View
     public TaskFragment getTaskFragment() {
         return taskFragment;
     }
+    public void removeAllItems(){
+        if (getItemCount() !=0){
+            items = new ArrayList<>();
+            notifyDataSetChanged();
+        }
+    }
 }
